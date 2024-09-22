@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myanmar History Timeline</title>
+    <style>
+        :root {
+            --color-primary: #505050;
+            --color-secondary: #ffffff;
+            --color-border: #8c8c8c;
+            --color-light-border: #ebebeb;
+            --color-light-background: #f6f6f6;
+            --font-small: 0.9em;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .table-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 2px solid var(--color-border);
+            width: 100%;
+            max-width: 100%;
+            table-layout: auto;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: center;
+            font-size: var(--font-small);
+            border: 1px solid var(--color-light-border);
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: var(--color-primary);
+            color: var(--color-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        th:first-child,
+        td:first-child {
+            background-color: var(--color-secondary);
+            position: sticky;
+            left: 0;
+            z-index: 99;
+            text-align: left;
+        }
+
+        th:first-child {
+            background-color: var(--color-primary);
+            color: var(--color-secondary);
+        }
+
+        tr:nth-of-type(even) {
+            background-color: var(--color-light-background);
+        }
+
+        .event-bar {
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: var(--font-small);
+        }
+
+        .c1 {
+            background-color: #264653;
+        }
+
+        .c2 {
+            background-color: #2a9d8f;
+        }
+
+        .c3 {
+            background-color: #e9c46a;
+        }
+
+        .c4 {
+            background-color: #f4a261;
+        }
+
+        .c5 {
+            background-color: #e76f51;
+        }
+
+        @media (max-width: 768px) {
+
+            th,
+            td {
+                font-size: 0.75em;
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="table-container" role="table" aria-label="Myanmar History Timeline">
+        <table role="grid">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>200 BCE</th>
+                    <th>1 CE</th>
+                    <th>2 CE</th>
+                    <th>3 CE</th>
+                    <th>4 CE</th>
+                    <th>5 CE</th>
+                    <th>6 CE</th>
+                    <th>7 CE</th>
+                    <th>8 CE</th>
+                    <th>9 CE</th>
+                    <th>788</th>
+                    <th>825</th>
+                    <th>849</th>
+                    <th>1050 CE</th>
+                    <th>1057</th>
+                    <th>1044</th>
+                    <th>1215</th>
+                    <th>1287</th>
+                    <th>1297</th>
+                    <th>1313</th>
+                    <th>1315</th>
+                    <th>1364</th>
+                    <th>1406</th>
+                    <th>1429</th>
+                    <th>1482</th>
+                    <th>1429</th>
+                    <th>1510</th>
+                    <th>1542</th>
+                    <th>1539</th>
+                    <th>1555</th>
+                    <th>1563</th>
+                    <th>1599</th>
+                    <th>1740</th>
+                    <th>1752</th>
+                    <th>1757</th>
+                    <th>1785</th>
+                    <th>1824</th>
+                    <th>1885</th>
+                    <th>1942</th>
+                    <th>1945</th>
+                    <th>1948</th>
+                    <th>1962</th>
+                    <th>1988</th>
+                    <th>2010</th>
+                    <th>2011</th>
+                    <th>2021</th>
+                    <th>Present</th>
+                    <!-- Add more time periods as needed -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic rows will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+        </div>
+
+        <script>
+            const headers = Array.from(document.querySelectorAll('thead th'));
+
+            function findYearIndex(year) {
+                return headers.findIndex(header => header.innerText.includes(year));
+            }
+
+            function addEventRow(name, start, end, className) {
+                const tableBody = document.querySelector('tbody');
+                const row = document.createElement('tr');
+                const startYear = parseInt(start), endYear = parseInt(end);
+                let duration = endYear - startYear;
+
+                const nameCell = document.createElement('td');
+                nameCell.textContent = name;
+                row.appendChild(nameCell);
+
+                const startIndex = findYearIndex(start);
+                const endIndex = findYearIndex(end);
+
+                if (startIndex >= 0 && endIndex >= 0) {
+                    for (let i = 1; i < startIndex; i++) {
+                        row.appendChild(document.createElement('td'));
+                    }
+
+                    const eventCell = document.createElement('td');
+                    eventCell.colSpan = endIndex - startIndex + 1;
+                    const eventBar = document.createElement('div');
+                    eventBar.className = `event-bar ${className}`;
+                    eventBar.textContent = duration > 0 ? `${duration} years` : 'Ongoing';
+                    eventCell.appendChild(eventBar);
+                    row.appendChild(eventCell);
+
+                    for (let i = endIndex + 1; i < headers.length; i++) {
+                        row.appendChild(document.createElement('td'));
+                    }
+
+                    tableBody.appendChild(row);
+                } else {
+                    console.error('Year range not found for', name);
+                }
+            }
+
+
+            // Add events
+            document.addEventListener('DOMContentLoaded', () => {
+                addEventRow('Pyu city state', '200 BCE', '1050 CE', 'c1');
+                addEventRow('Mon Kingdoms', '825', '1057', 'c2');
+                addEventRow('Arakanes Kingdoms', '788', '1406', 'c3');
+                addEventRow('Early Pagan Kingdom', '849', '1044', 'c4');
+                addEventRow('Pagan Kingdom', '1044', '1297', 'c5');
+                addEventRow('Myinsaing/Pinya Kingdom', '1297', '1364', 'c1');
+                addEventRow('Sagain Kingdom', '1315', '1364', 'c2');
+                addEventRow('Ava Kingdom', '1364', '1555', 'c3');
+                addEventRow('Prome Kingdom', '1482', '1542', 'c4');
+                addEventRow('Hanthawaddy Kingdom', '1287', '1539', 'c5');
+                addEventRow('Shan States', '1215', '1563', 'c1');
+                addEventRow('Maruk U', '1429', '1785', 'c2');
+                addEventRow('First Toungoo Empire', '1510', '1599', 'c3');
+                addEventRow('Nyaungyan', '1599', '1752', 'c4');
+                addEventRow('Restored Hanthawaddy', '1740', '1757', 'c5');
+                addEventRow('Konbaung dynasty', '1752', '1885', 'c1');
+                addEventRow('Biritish Colonial', '1824', '1948', 'c2');
+                addEventRow('Japanese occupation', '1942', '1945', 'c3');
+                addEventRow('Union Of Burma', '1948', '1962', 'c4');
+                addEventRow('Socialist Republic', '1962', '1988', 'c5');
+                addEventRow('Union Of Myanmar', '1988', '2010', 'c1');
+                addEventRow('Republic of the Union Of Myanmar', '2011', '2021', 'c2');
+                addEventRow('State Administraton Council', '2021', 'Present', 'c3');
+
+            });
+        </script>
+
+</body>
+
+</html>
