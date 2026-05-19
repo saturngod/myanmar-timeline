@@ -102,6 +102,54 @@
             background-color: #e76f51;
         }
 
+        .event-bar:hover {
+            cursor: pointer;
+            filter: brightness(1.2);
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+
+        .tooltip {
+            position: fixed;
+            background: white;
+            color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 10000;
+            display: none;
+            max-width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+            pointer-events: none;
+            font-size: 14px;
+            line-height: 1.4;
+            border: 1px solid #ddd;
+        }
+
+        .tooltip h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: var(--color-primary);
+        }
+
+        .tooltip .date-range {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .tooltip .summary {
+            margin-top: 10px;
+        }
+
+        .tooltip img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
         @media (max-width: 768px) {
 
             th,
@@ -182,11 +230,11 @@
                 return headers.findIndex(header => header.innerText.includes(year));
             }
 
-            function addEventRow(name, start, end, className) {
+            function addEventRow(name, start, end, className, wikiUrl) {
                 const tableBody = document.querySelector('tbody');
                 const row = document.createElement('tr');
                 const startYear = parseInt(start), endYear = parseInt(end);
-                let duration = endYear - startYear;
+                let duration = isNaN(endYear) ? null : endYear - startYear;
 
                 const nameCell = document.createElement('td');
                 nameCell.textContent = name;
@@ -204,7 +252,22 @@
                     eventCell.colSpan = endIndex - startIndex + 1;
                     const eventBar = document.createElement('div');
                     eventBar.className = `event-bar ${className}`;
-                    eventBar.textContent = duration > 0 ? `${duration} years` : 'Ongoing';
+                    eventBar.textContent = duration !== null && duration > 0 ? `${duration} years` : 'Ongoing';
+                    
+                    // Add Wikipedia reference
+                    eventBar.dataset.wikiUrl = wikiUrl;
+                    eventBar.dataset.name = name;
+                    eventBar.dataset.start = start;
+                    eventBar.dataset.end = end;
+                    
+                    eventBar.addEventListener('click', () => {
+                        if (wikiUrl) window.open(wikiUrl, '_blank');
+                    });
+
+                    eventBar.addEventListener('mouseenter', showTooltip);
+                    eventBar.addEventListener('mouseleave', hideTooltip);
+                    eventBar.addEventListener('mousemove', moveTooltip);
+
                     eventCell.appendChild(eventBar);
                     row.appendChild(eventCell);
 
@@ -218,32 +281,112 @@
                 }
             }
 
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            document.body.appendChild(tooltip);
+
+            function showTooltip(e) {
+                const bar = e.currentTarget;
+                const name = bar.dataset.name;
+                const start = bar.dataset.start;
+                const end = bar.dataset.end;
+                const wikiUrl = bar.dataset.wikiUrl;
+
+                tooltip.innerHTML = `
+                    <h3>${name}</h3>
+                    <span class="date-range">${start} - ${end}</span>
+                    <div class="summary">Loading info from Wikipedia...</div>
+                `;
+                tooltip.style.display = 'block';
+
+                if (wikiUrl) {
+                    const title = wikiUrl.split('/wiki/')[1].split('#')[0];
+                    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${title}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.extract) {
+                                tooltip.innerHTML = `
+                                    <h3>${name}</h3>
+                                    <span class="date-range">${start} - ${end}</span>
+                                    <div class="summary">${data.extract}</div>
+                                    ${data.thumbnail ? `<img src="${data.thumbnail.source}" alt="${name}">` : ''}
+                                `;
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Wiki fetch error:', err);
+                            tooltip.querySelector('.summary').textContent = 'Could not load Wikipedia information.';
+                        });
+                }
+            }
+
+            function hideTooltip() {
+                tooltip.style.display = 'none';
+            }
+
+            function moveTooltip(e) {
+                const padding = 20;
+                let x = e.clientX + padding;
+                let y = e.clientY + padding;
+
+                const winW = window.innerWidth;
+                const winH = window.innerHeight;
+                const toolW = tooltip.offsetWidth;
+                const toolH = tooltip.offsetHeight;
+
+                // Adjust horizontally
+                if (x + toolW > winW) {
+                    x = e.clientX - toolW - padding;
+                }
+                if (x < 0) x = 10;
+
+                // Adjust vertically
+                if (y + toolH > winH) {
+                    // Try showing above cursor
+                    y = e.clientY - toolH - padding;
+                }
+                
+                // If still off-screen (now at the top), pin to top
+                if (y < 0) {
+                    // If the item is in the top half of the screen, show below cursor
+                    // otherwise show at top of screen
+                    if (e.clientY < winH / 2) {
+                        y = e.clientY + padding;
+                    } else {
+                        y = 10;
+                    }
+                }
+
+                tooltip.style.left = x + 'px';
+                tooltip.style.top = y + 'px';
+            }
+
 
             // Add events
             document.addEventListener('DOMContentLoaded', () => {
-                addEventRow('Pyu city state', '200 BCE', '1050 CE', 'c1');
-                addEventRow('Mon Kingdoms', '825', '1057', 'c2');
-                addEventRow('Arakanes Kingdoms', '788', '1406', 'c3');
-                addEventRow('Early Pagan Kingdom', '849', '1044', 'c4');
-                addEventRow('Pagan Kingdom', '1044', '1297', 'c5');
-                addEventRow('Myinsaing/Pinya Kingdom', '1297', '1364', 'c1');
-                addEventRow('Sagain Kingdom', '1315', '1364', 'c2');
-                addEventRow('Ava Kingdom', '1364', '1555', 'c3');
-                addEventRow('Prome Kingdom', '1482', '1542', 'c4');
-                addEventRow('Hanthawaddy Kingdom', '1287', '1539', 'c5');
-                addEventRow('Shan States', '1215', '1563', 'c1');
-                addEventRow('Maruk U', '1429', '1785', 'c2');
-                addEventRow('First Toungoo Empire', '1510', '1599', 'c3');
-                addEventRow('Nyaungyan', '1599', '1752', 'c4');
-                addEventRow('Restored Hanthawaddy', '1740', '1757', 'c5');
-                addEventRow('Konbaung dynasty', '1752', '1885', 'c1');
-                addEventRow('Biritish Colonial', '1824', '1948', 'c2');
-                addEventRow('Japanese occupation', '1942', '1945', 'c3');
-                addEventRow('Union Of Burma', '1948', '1962', 'c4');
-                addEventRow('Socialist Republic', '1962', '1988', 'c5');
-                addEventRow('Union Of Myanmar', '1988', '2010', 'c1');
-                addEventRow('Republic of the Union Of Myanmar', '2011', '2021', 'c2');
-                addEventRow('State Administraton Council', '2021', 'Present', 'c3');
+                addEventRow('Pyu city state', '200 BCE', '1050 CE', 'c1', 'https://en.wikipedia.org/wiki/Pyu_city-states');
+                addEventRow('Mon Kingdoms', '825', '1057', 'c2', 'https://en.wikipedia.org/wiki/Mon_kingdoms');
+                addEventRow('Arakanese Kingdoms', '788', '1406', 'c3', 'https://en.wikipedia.org/wiki/History_of_Rakhine');
+                addEventRow('Early Pagan Kingdom', '849', '1044', 'c4', 'https://en.wikipedia.org/wiki/Pagan_Kingdom');
+                addEventRow('Pagan Kingdom', '1044', '1297', 'c5', 'https://en.wikipedia.org/wiki/Pagan_Kingdom');
+                addEventRow('Myinsaing/Pinya Kingdom', '1297', '1364', 'c1', 'https://en.wikipedia.org/wiki/Myinsaing_Kingdom');
+                addEventRow('Sagaing Kingdom', '1315', '1364', 'c2', 'https://en.wikipedia.org/wiki/Sagaing_Kingdom');
+                addEventRow('Ava Kingdom', '1364', '1555', 'c3', 'https://en.wikipedia.org/wiki/Kingdom_of_Ava');
+                addEventRow('Prome Kingdom', '1482', '1542', 'c4', 'https://en.wikipedia.org/wiki/Prome_Kingdom');
+                addEventRow('Hanthawaddy Kingdom', '1287', '1539', 'c5', 'https://en.wikipedia.org/wiki/Hanthawaddy_Kingdom');
+                addEventRow('Shan States', '1215', '1563', 'c1', 'https://en.wikipedia.org/wiki/Shan_States');
+                addEventRow('Mrauk U', '1429', '1785', 'c2', 'https://en.wikipedia.org/wiki/Kingdom_of_Mrauk_U');
+                addEventRow('First Toungoo Empire', '1510', '1599', 'c3', 'https://en.wikipedia.org/wiki/Toungoo_dynasty');
+                addEventRow('Nyaungyan', '1599', '1752', 'c4', 'https://en.wikipedia.org/wiki/Toungoo_dynasty#Restored_Toungoo_Kingdom_(Nyaungyan_dynasty)');
+                addEventRow('Restored Hanthawaddy', '1740', '1757', 'c5', 'https://en.wikipedia.org/wiki/Restored_Hanthawaddy_Kingdom');
+                addEventRow('Konbaung dynasty', '1752', '1885', 'c1', 'https://en.wikipedia.org/wiki/Konbaung_dynasty');
+                addEventRow('British Colonial', '1824', '1948', 'c2', 'https://en.wikipedia.org/wiki/British_rule_in_Burma');
+                addEventRow('Japanese occupation', '1942', '1945', 'c3', 'https://en.wikipedia.org/wiki/Japanese_occupation_of_Burma');
+                addEventRow('Union Of Burma', '1948', '1962', 'c4', 'https://en.wikipedia.org/wiki/Post-independence_Burma,_1948%E2%80%931962');
+                addEventRow('Socialist Republic', '1962', '1988', 'c5', 'https://en.wikipedia.org/wiki/Socialist_Republic_of_the_Union_of_Burma');
+                addEventRow('Union Of Myanmar', '1988', '2010', 'c1', 'https://en.wikipedia.org/wiki/State_Law_and_Order_Restoration_Council');
+                addEventRow('Republic of the Union Of Myanmar', '2011', '2021', 'c2', 'https://en.wikipedia.org/wiki/Myanmar');
+                addEventRow('State Administration Council', '2021', 'Present', 'c3', 'https://en.wikipedia.org/wiki/State_Administration_Council');
 
             });
         </script>
