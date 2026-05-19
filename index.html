@@ -5,164 +5,306 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Myanmar History Timeline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --color-primary: #505050;
-            --color-secondary: #ffffff;
-            --color-border: #8c8c8c;
-            --color-light-border: #ebebeb;
-            --color-light-background: #f6f6f6;
-            --font-small: 0.9em;
+            --bg-gradient-start: #0f172a;
+            --bg-gradient-end: #1e293b;
+            --surface: rgba(255, 255, 255, 0.95);
+            --surface-elevated: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: rgba(15, 23, 42, 0.08);
+            --border-strong: rgba(15, 23, 42, 0.12);
+            --header-bg: #0f172a;
+            --header-text: #f8fafc;
+            --row-alt: #f8fafc;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+            --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.15);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0;
-            color: #333;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .page-header {
+            padding: 40px 24px 24px;
+            text-align: center;
+            color: #f8fafc;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: clamp(1.5rem, 3vw, 2.25rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header p {
+            margin: 8px 0 0;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            font-weight: 400;
         }
 
         .table-container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 10px;
+            padding: 0 16px 40px;
+        }
+
+        .table-wrapper {
+            background: var(--surface-elevated);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow-x: auto;
+            overflow-y: visible;
+            padding-bottom: 4px;
         }
 
         table {
             border-collapse: separate;
             border-spacing: 0;
-            border: 2px solid var(--color-border);
             width: 100%;
             max-width: 100%;
             table-layout: auto;
+            font-size: 0.85rem;
         }
 
         th,
         td {
-            padding: 8px;
+            padding: 10px 12px;
             text-align: center;
-            font-size: var(--font-small);
-            border: 1px solid var(--color-light-border);
+            border-bottom: 1px solid var(--border);
             white-space: nowrap;
         }
 
         th {
-            background-color: var(--color-primary);
-            color: var(--color-secondary);
+            background: var(--header-bg);
+            color: var(--header-text);
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
             position: sticky;
             top: 0;
             z-index: 2;
+            padding: 14px 12px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         th:first-child,
         td:first-child {
-            background-color: var(--color-secondary);
+            background: var(--surface-elevated);
             position: sticky;
             left: 0;
             z-index: 99;
             text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-right: 1px solid var(--border);
+            box-shadow: 4px 0 8px -4px rgba(15, 23, 42, 0.06);
+            min-width: 200px;
         }
 
         th:first-child {
-            background-color: var(--color-primary);
-            color: var(--color-secondary);
+            background: var(--header-bg);
+            color: var(--header-text);
+            z-index: 100;
         }
 
-        tr:nth-of-type(even) {
-            background-color: var(--color-light-background);
+        tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        tbody tr:nth-of-type(even) td {
+            background-color: var(--row-alt);
+        }
+
+        tbody tr:nth-of-type(even) td:first-child {
+            background-color: var(--row-alt);
+        }
+
+        tbody tr:hover td {
+            background-color: #eff6ff;
+        }
+
+        tbody tr:hover td:first-child {
+            background-color: #eff6ff;
         }
 
         .event-bar {
-            height: 20px;
+            height: 28px;
             display: flex;
             justify-content: center;
             align-items: center;
             color: #fff;
-            font-size: var(--font-small);
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            letter-spacing: 0.02em;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .c1 {
-            background-color: #264653;
+        .event-bar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
+            pointer-events: none;
         }
 
-        .c2 {
-            background-color: #2a9d8f;
-        }
-
-        .c3 {
-            background-color: #e9c46a;
-        }
-
-        .c4 {
-            background-color: #f4a261;
-        }
-
-        .c5 {
-            background-color: #e76f51;
-        }
+        .c1 { background: linear-gradient(135deg, #1e3a5f 0%, #264653 100%); }
+        .c2 { background: linear-gradient(135deg, #14b8a6 0%, #2a9d8f 100%); }
+        .c3 { background: linear-gradient(135deg, #f59e0b 0%, #e9c46a 100%); color: #422006; }
+        .c4 { background: linear-gradient(135deg, #fb923c 0%, #f4a261 100%); }
+        .c5 { background: linear-gradient(135deg, #ef4444 0%, #e76f51 100%); }
 
         .event-bar:hover {
             cursor: pointer;
-            filter: brightness(1.2);
-            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            transform: translateY(-1px) scale(1.02);
+            filter: brightness(1.08);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+            z-index: 5;
         }
 
         .tooltip {
             position: fixed;
-            background: white;
-            color: #333;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            background: var(--surface-elevated);
+            color: var(--text-primary);
+            padding: 18px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
             z-index: 10000;
             display: none;
-            max-width: 350px;
+            max-width: 360px;
             max-height: 80vh;
             overflow-y: auto;
             pointer-events: none;
-            font-size: 14px;
-            line-height: 1.4;
-            border: 1px solid #ddd;
+            font-size: 0.875rem;
+            line-height: 1.55;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            animation: tooltipFade 0.18s ease-out;
+        }
+
+        @keyframes tooltipFade {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .tooltip h3 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
-            color: var(--color-primary);
+            margin: 0 0 6px 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
         }
 
         .tooltip .date-range {
-            font-weight: bold;
-            color: #666;
-            margin-bottom: 10px;
-            display: block;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            display: inline-block;
+            padding: 3px 10px;
+            background: #f1f5f9;
+            border-radius: 999px;
         }
 
         .tooltip .summary {
-            margin-top: 10px;
+            margin-top: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
         }
 
         .tooltip img {
             max-width: 100%;
             height: auto;
-            margin-top: 10px;
-            border-radius: 4px;
+            margin-top: 12px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table-wrapper::-webkit-scrollbar {
+            height: 10px;
+            width: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
         @media (max-width: 768px) {
+            .page-header {
+                padding: 24px 16px 16px;
+            }
 
             th,
             td {
-                font-size: 0.75em;
-                padding: 5px;
+                font-size: 0.7rem;
+                padding: 8px 6px;
+            }
+
+            th {
+                font-size: 0.65rem;
+                padding: 10px 6px;
+            }
+
+            th:first-child,
+            td:first-child {
+                min-width: 140px;
+            }
+
+            .event-bar {
+                height: 24px;
+                font-size: 0.65rem;
             }
         }
     </style>
 </head>
 
 <body>
-    <section class="table-container" role="table" aria-label="Myanmar History Timeline">
+    <header class="page-header">
+        <h1>Myanmar History Timeline</h1>
+        <p>From the Pyu city-states to the present day — hover any bar for details.</p>
+    </header>
+    <section class="table-container" aria-label="Myanmar History Timeline">
+        <div class="table-wrapper">
         <table role="grid">
             <thead>
                 <tr>
@@ -222,12 +364,13 @@
             </tbody>
         </table>
         </div>
+        </section>
 
         <script>
             const headers = Array.from(document.querySelectorAll('thead th'));
 
             function findYearIndex(year) {
-                return headers.findIndex(header => header.innerText.includes(year));
+                return headers.findIndex(header => header.textContent.trim() === year.trim());
             }
 
             function addEventRow(name, start, end, className, wikiUrl) {
